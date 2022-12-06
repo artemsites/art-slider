@@ -1,0 +1,10 @@
+.art-slider {
+  &__wrapper {
+    overflow-x: hidden;
+  }
+  &__list {
+    // не устанавливать ширину, а то ширина одного слайда вычислится неверно
+    width: auto;//или можно наверно fit-content
+    display: flex;
+  }
+}
