@@ -1,10 +1,21 @@
-function ArtSlider(slider, params) {
+/**
+ *
+ * @param {*} slider
+ * @param {*} params
+ * @returns
+ */
+ export function ArtSlider(params) {
   let state = {
+    slideView: params.slideView || 'auto',
+    autoplay: params.autoplay || false,
+    stopOnHover: params.stopOnHover || true,
     speed: params.speed || 500,
+    // TODO loop: false не сделано
     loop: params.loop || false,
     btnNext: params.btnNext || null,
     btnPrev: params.btnPrev || null,
-    slider: slider || null,
+    slider: params.slider || ".art-slider",
+    sliders: null,
     list: null,
     listWidth: null,
     slides: {
@@ -27,6 +38,7 @@ function ArtSlider(slider, params) {
       prev();
       return this.slides.active;
     },
+    autoplayInterval: null,
   };
 
   initSlider();
@@ -38,49 +50,69 @@ function ArtSlider(slider, params) {
   ////////////////////////////////////////////////////////////////////
 
   function initSlider() {
-    if (slider && typeof slider === "string") {
-      state.slider = document.querySelector(slider);
+    if (state.slider && typeof state.slider === "string") {
+      state.sliders = document.querySelectorAll(state.slider);
     }
 
-    state.list = state.slider.querySelector(".art-slider__list");
-    state.list.style.transition = state.speed + "ms";
-    state.listWidth = state.list.getBoundingClientRect().width;
+    state.sliders.forEach(function (sliderItem) {
+      sliderItem.classList.add('--slide-view-'+state.slideView)
 
-    if (state.btnNext && typeof state.btnNext === "string") {
-      state.btnNext = document.querySelector(state.btnNext);
-    }
-    if (state.btnPrev && typeof state.btnPrev === "string") {
-      state.btnPrev = document.querySelector(state.btnPrev);
-    }
+      state.list = sliderItem.querySelector(".art-slider__list");
+      state.list.style.transition = state.speed + "ms";
+      state.listWidth = state.list.getBoundingClientRect().width;
 
-    state.slides.nodes = state.slider.querySelectorAll(".art-slider__item");
-    // state.slideWidth =
-    //   state.slides.nodes[0].getBoundingClientRect().width + state.margin;
-    state.slides.nodes[0].classList.add("art-slider__item--active");
-    state.slides.active = state.slides.nodes[0];
-    state.slides.activeIndex = 0;
-    state.slides.count = state.slides.nodes.length;
-    // !Важно ширина обёртки list должна быть равна сумме ширин слайдов
-    state.slideWidth = state.listWidth / state.slides.count;
-    state.slides.nodes.forEach(function (slide, i) {
-      slide.dataset.artSlideI = i;
-      state.slides.items[i] = slide;
+      if (state.btnNext && typeof state.btnNext === "string") {
+        state.btnNext = document.querySelector(state.btnNext);
+      }
+      if (state.btnPrev && typeof state.btnPrev === "string") {
+        state.btnPrev = document.querySelector(state.btnPrev);
+      }
 
-      // !Помогает избавиться от багов с началом обработки драга вместо требуемых touchstart и mousedown
-      slide.addEventListener("dragstart", function (e) {
-        e.preventDefault;
-      });
+      state.slides.nodes = sliderItem.querySelectorAll(".art-slider__item");
+      // state.slideWidth =
+      //   state.slides.nodes[0].getBoundingClientRect().width + state.margin;
+      state.slides.nodes[0].classList.add("art-slider__item--active");
+      state.slides.active = state.slides.nodes[0];
+      state.slides.activeIndex = 0;
+      state.slides.count = state.slides.nodes.length;
 
-      ["touchstart", "mousedown"].forEach(function (eventName) {
-        slide.addEventListener(eventName, (e) => {
-          onSwipeStart(e);
+      if (state.autoplay) {
+        autoplayOn();
+      }
+
+      if (state.stopOnHover) {
+        sliderItem.addEventListener('mouseover', function(){
+          autoplayOff();
+        });
+        sliderItem.addEventListener('mouseleave', function(){
+          autoplayOn();
+        });
+      }
+
+      // !Важно ширина обёртки list должна быть равна сумме ширин слайдов
+      state.slideWidth = state.listWidth / state.slides.count;
+
+      // Инициация свайпов
+      state.slides.nodes.forEach(function (slide, i) {
+        slide.dataset.artSlideI = i;
+        state.slides.items[i] = slide;
+
+        // !Помогает избавиться от багов с началом обработки драга вместо требуемых touchstart и mousedown
+        slide.addEventListener("dragstart", function (e) {
+          e.preventDefault;
+        });
+
+        ["touchstart", "mousedown"].forEach(function (eventName) {
+          slide.addEventListener(eventName, (e) => {
+            onSwipeStart(e);
+          });
         });
       });
-    });
 
-    ["touchend", "mouseup"].forEach(function (eventName) {
-      document.addEventListener(eventName, (e) => {
-        onSwipeEnd(e);
+      ["touchend", "mouseup"].forEach(function (eventName) {
+        document.addEventListener(eventName, (e) => {
+          onSwipeEnd(e);
+        });
       });
     });
   }
@@ -209,6 +241,16 @@ function ArtSlider(slider, params) {
       // TODO autoplay:
       // autoplay();
     }
+  }
+
+  function autoplayOn() {
+    state.autoplayInterval = setInterval(function() {
+      next();
+    }, state.autoplay);
+  }
+
+  function autoplayOff() {
+    clearInterval(state.autoplayInterval);
   }
 
   return state;

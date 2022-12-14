@@ -4,7 +4,20 @@
   }
   &__list {
     // не устанавливать ширину, а то ширина одного слайда вычислится неверно
-    width: auto;//или можно наверно fit-content
+    width: auto; //или можно наверно fit-content
     display: flex;
+  }
+  &__item {
+    height: 0;
+    overflow-y: hidden;
+    &--active {
+      height: auto;
+    }
+  }
+  &.--slide-view-1 & {
+    &__item {
+      width: 100%;
+      flex-shrink: 0;
+    }
   }
 }
