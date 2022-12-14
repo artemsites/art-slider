@@ -1,7 +1,11 @@
 /**
- *
- * @param {*} slider
- * @param {*} params
+ * Слайдер
+ * @author web.master-artem.ru
+ * @version 1.1 - 14.12.2022
+ * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
+ * @source (github) https://github.com/artemijeka/art-slider
+ * 
+ * @param {Object} params
  * @returns
  */
  export function ArtSlider(params) {
@@ -11,7 +15,7 @@
     stopOnHover: params.stopOnHover || true,
     speed: params.speed || 500,
     // TODO loop: false не сделано
-    loop: params.loop || false,
+    loop: params.loop || true,
     btnNext: params.btnNext || null,
     btnPrev: params.btnPrev || null,
     slider: params.slider || ".art-slider",

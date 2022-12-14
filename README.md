@@ -1,7 +1,7 @@
-Пример
+Пример (версия 1.1)
 ```
 new ArtSlider({
-  loop: true,
+  loop: true,//default: true 
   slideView: 1,//default: 'auto'
   stopOnHover: true,//default: true 
   swipe: true,
