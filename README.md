@@ -1,4 +1,13 @@
-Пример (версия 1.1.1)
+#### Слайдер ArtSlider
+Author web.master-artem.ru
+Version 1.1.1 - 14.12.2022
+Source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
+Source (github) https://github.com/artemijeka/art-slider
+
+@param {Object} params
+@returns {Object} state
+
+##### Пример (версия 1.1.1):
 ```
 new ArtSlider({
   loop: true,

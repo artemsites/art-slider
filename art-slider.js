@@ -1,14 +1,14 @@
 /**
- * Слайдер
+ * Слайдер ArtSlider
  * @author web.master-artem.ru
  * @version 1.1.1 - 14.12.2022
  * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
  * @source (github) https://github.com/artemijeka/art-slider
  * 
  * @param {Object} params
- * @returns
+ * @returns {Object} state
  */
- export function ArtSlider(params) {
+export function ArtSlider(params) {
   let state = {
     slideView: params.slideView || 'auto',
     autoplay: params.autoplay || false,
