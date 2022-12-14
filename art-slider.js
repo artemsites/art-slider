@@ -1,7 +1,7 @@
 /**
  * Слайдер
  * @author web.master-artem.ru
- * @version 1.1 - 14.12.2022
+ * @version 1.1.1 - 14.12.2022
  * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
  * @source (github) https://github.com/artemijeka/art-slider
  * 
@@ -15,7 +15,7 @@
     stopOnHover: params.stopOnHover || true,
     speed: params.speed || 500,
     // TODO loop: false не сделано
-    loop: params.loop || true,
+    loop: params.loop || false,
     btnNext: params.btnNext || null,
     btnPrev: params.btnPrev || null,
     slider: params.slider || ".art-slider",
@@ -82,15 +82,15 @@
 
       if (state.autoplay) {
         autoplayOn();
-      }
 
-      if (state.stopOnHover) {
-        sliderItem.addEventListener('mouseover', function(){
-          autoplayOff();
-        });
-        sliderItem.addEventListener('mouseleave', function(){
-          autoplayOn();
-        });
+        if (state.stopOnHover) {
+          sliderItem.addEventListener('mouseover', function(){
+            autoplayOff();
+          });
+          sliderItem.addEventListener('mouseleave', function(){
+            autoplayOn();
+          });
+        }
       }
 
       // !Важно ширина обёртки list должна быть равна сумме ширин слайдов
