@@ -11,7 +11,7 @@
 export function ArtSlider(params) {
   let state = {
     slideView: params.slideView || "auto",
-
+    
     autoplay: params.autoplay || false,
     autoplayInfoPopup: params.autoplayInfoPopup || false,
     autoplayOnInfoPopupHTML: params.autoplayOnInfoPopupHTML || "",
