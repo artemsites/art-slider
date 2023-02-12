@@ -1,11 +1,12 @@
 /**
  * Слайдер
  * @author web.master-artem.ru
- * @version 1.1.1 - 14.12.2022
+ * @version 1.2 - 12.02.2023
  * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
  * @source (github) https://github.com/artemijeka/art-slider
  */
 .art-slider {
+  position: relative;
   &__wrapper {
     overflow-x: hidden;
   }
@@ -25,6 +26,23 @@
     &__item {
       width: 100%;
       flex-shrink: 0;
+    }
+  }
+  &__info-popup {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -100%);
+    opacity: 0;
+    &.--fade-in {
+      transition: 1000ms;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    &.--fade-out {
+      transition: 750ms;
+      transform: translate(-50%, 0%);
+      opacity: 0;
     }
   }
 }

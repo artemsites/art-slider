@@ -1,14 +1,27 @@
-#### Слайдер ArtSlider
-##### Простой слайдер, вёрстку надо настравивать вручную, стандартизированной вёрстки пока нет.
-Author web.master-artem.ru
-Version 1.2 - 12.02.2023
-Source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
-Source (github) https://github.com/artemijeka/art-slider
+<template>
+  <div ref="slider" class="art-slider">
+    <div class="art-slider__wrapper">
+      <div class="art-slider__list">
 
+        <div class="art-slider__item" v-for="slide in slides">
+        </div>
 
+      </div>
+    </div>
+  </div>
+</template>
 
-##### Пример (версия 1.2):
-```
+<style lang="scss">
+@import '~/assets/scss/libs/art-slider.scss';
+</style>
+
+<script setup>
+import { ArtSlider } from '~/assets/js/libs/art-slider.js';
+
+let props = defineProps(['slides']);
+let slider = ref(null);
+
+onMounted(() => {
   new ArtSlider({
     slider: slider.value,//default: '.art-slider'
     loop: true,
@@ -26,4 +39,5 @@ Source (github) https://github.com/artemijeka/art-slider
     // btnPrev: '.block-text__prev',
     // btnNext: '.block-text__next',
   });
-```
+})
+</script>

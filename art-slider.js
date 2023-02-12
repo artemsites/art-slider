@@ -1,17 +1,23 @@
 /**
  * Слайдер ArtSlider
  * @author web.master-artem.ru
- * @version 1.1.1 - 14.12.2022
+ * @version 1.2 - 12.02.2023
  * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
  * @source (github) https://github.com/artemijeka/art-slider
- * 
+ *
  * @param {Object} params
  * @returns {Object} state
  */
 export function ArtSlider(params) {
   let state = {
-    slideView: params.slideView || 'auto',
+    slideView: params.slideView || "auto",
+
     autoplay: params.autoplay || false,
+    autoplayInfoPopup: params.autoplayInfoPopup || false,
+    autoplayOnInfoPopupHTML: params.autoplayOnInfoPopupHTML || "",
+    autoplayOffInfoPopupHTML: params.autoplayOffInfoPopupHTML || "",
+    autoplayInfoPopupTimeout: params.autoplayInfoPopupTimeout || 300,
+
     stopOnHover: params.stopOnHover || true,
     speed: params.speed || 500,
     // TODO loop: false не сделано
@@ -49,17 +55,24 @@ export function ArtSlider(params) {
   // Клики по кнопкам навигации
   initNavBtns();
 
+  console.log(state);
+
   ////////////////////////////////////////////////////////////////////
   /* Далее идут функции которые взаимодействуют вызывая друг друга: */
   ////////////////////////////////////////////////////////////////////
 
   function initSlider() {
+    // Если передан селектор для поиска
     if (state.slider && typeof state.slider === "string") {
       state.sliders = document.querySelectorAll(state.slider);
     }
+    // Если передан уже найденный элемент
+    else if (state.slider && typeof state.slider === "object") {
+      state.sliders = [state.slider];
+    }
 
     state.sliders.forEach(function (sliderItem) {
-      sliderItem.classList.add('--slide-view-'+state.slideView)
+      sliderItem.classList.add("--slide-view-" + state.slideView);
 
       state.list = sliderItem.querySelector(".art-slider__list");
       state.list.style.transition = state.speed + "ms";
@@ -81,14 +94,18 @@ export function ArtSlider(params) {
       state.slides.count = state.slides.nodes.length;
 
       if (state.autoplay) {
-        autoplayOn();
+        autoplayOn(sliderItem);
 
         if (state.stopOnHover) {
-          sliderItem.addEventListener('mouseover', function(){
-            autoplayOff();
+          // console.log('sliderItem')
+          // console.log(sliderItem)
+          sliderItem.addEventListener("mouseenter", function () {
+            autoplayOff(sliderItem);
+            // console.log("autoplayOff");
           });
-          sliderItem.addEventListener('mouseleave', function(){
-            autoplayOn();
+          sliderItem.addEventListener("mouseleave", function () {
+            autoplayOn(sliderItem);
+            // console.log("autoplayOn");
           });
         }
       }
@@ -221,6 +238,7 @@ export function ArtSlider(params) {
   }
 
   function onSwipeStart(e) {
+    console.log("onSwipeStart");
     // TODO autoplay('stop')
     // #autoplay('stop');
 
@@ -230,6 +248,7 @@ export function ArtSlider(params) {
   }
 
   function onSwipeEnd(e) {
+    console.log("onSwipeEnd");
     if (!state.isSwiping) {
       return;
     }
@@ -247,14 +266,43 @@ export function ArtSlider(params) {
     }
   }
 
-  function autoplayOn() {
-    state.autoplayInterval = setInterval(function() {
+  function autoplayOn(sliderItem) {
+    state.autoplayInterval = setInterval(function () {
       next();
     }, state.autoplay);
+    if (state.autoplayInfoPopup) {
+      autoplayInfoPopup(sliderItem, state.autoplayOnInfoPopupHTML);
+    }
   }
 
-  function autoplayOff() {
+  function autoplayOff(sliderItem) {
     clearInterval(state.autoplayInterval);
+    if (state.autoplayInfoPopup) {
+      autoplayInfoPopup(sliderItem, state.autoplayOffInfoPopupHTML);
+    }
+  }
+
+  function autoplayInfoPopup(sliderItem, message) {
+    let popup = createPopup();
+    popup.innerHTML = message;
+    sliderItem.append(popup);
+    setTimeout(function () {
+      popup.classList.add("--fade-in");
+    }, 1);
+
+    setTimeout(function () {
+      popup.classList.remove("--fade-in");
+      popup.classList.add("--fade-out");
+      setTimeout(function () {
+        popup.remove();
+      }, 1000);
+    }, state.autoplayInfoPopupTimeout);
+  }
+
+  function createPopup() {
+    let popup = document.createElement("div");
+    popup.className = "art-slider__info-popup";
+    return popup;
   }
 
   return state;
