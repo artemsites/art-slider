@@ -1,9 +1,9 @@
 #### Слайдер ArtSlider
 ##### Простой слайдер, вёрстку надо настравивать вручную, стандартизированной вёрстки пока нет.
-Author web.master-artem.ru
-Version 1.2 - 12.02.2023
-Source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
-Source (github) https://github.com/artemijeka/art-slider
+Author web.master-artem.ru   
+Version 1.2 - 12.02.2023   
+Source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6   
+Source (github) https://github.com/artemijeka/art-slider   
 
 
 
