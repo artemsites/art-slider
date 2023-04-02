@@ -5,6 +5,12 @@
  * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
  * @source (github) https://github.com/artemijeka/art-slider
  */
+
+// $slider:'.art-slider';
+// $selectorWrapper:'.art-slider__wrapper';
+// $selectorList:'.art-slider__list';
+// $selectorItem:'.art-slider__item';
+
 .art-slider {
   position: relative;
   &__wrapper {

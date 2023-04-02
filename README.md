@@ -1,7 +1,7 @@
 #### Слайдер ArtSlider
 ##### Простой слайдер, вёрстку надо настравивать вручную, стандартизированной вёрстки пока нет.
 Author web.master-artem.ru   
-Version 1.2 - 12.02.2023   
+Version 1.3 - 02.04.2023   
 Source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6   
 Source (github) https://github.com/artemijeka/art-slider   
 
@@ -11,6 +11,9 @@ Source (github) https://github.com/artemijeka/art-slider
 ```
   new ArtSlider({
     slider: slider.value,//default: '.art-slider'
+    selectorWrapper: '.art-slider__wrapper',
+    selectorList: '.art-slider__list',
+    selectorItem: '.art-slider__item',
     loop: true,
     slideView: 1,//default: 'auto'
     stopOnHover: false,//default: true 
@@ -26,4 +29,18 @@ Source (github) https://github.com/artemijeka/art-slider
     // btnPrev: '.block-text__prev',
     // btnNext: '.block-text__next',
   });
+```
+
+```
+<div class="art-slider">
+  <div class="art-slider__wrapper">
+    <div class="art-slider__list">
+
+      <div class="art-slider__item"></div>
+      <div class="art-slider__item"></div>
+      <div class="art-slider__item"></div>
+
+    </div>
+  </div>
+</div>
 ```

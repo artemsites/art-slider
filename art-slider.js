@@ -1,7 +1,7 @@
 /**
  * Слайдер ArtSlider
  * @author web.master-artem.ru
- * @version 1.2 - 12.02.2023
+ * @version 1.3 - 02.04.2023 
  * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
  * @source (github) https://github.com/artemijeka/art-slider
  *
@@ -25,6 +25,9 @@ export function ArtSlider(params) {
     btnNext: params.btnNext || null,
     btnPrev: params.btnPrev || null,
     slider: params.slider || ".art-slider",
+    selectorWrapper: params.selectorWrapper || '.art-slider__wrapper',
+    selectorList: params.selectorList || '.art-slider__list',
+    selectorItem: params.selectorItem || '.art-slider__item',
     sliders: null,
     list: null,
     listWidth: null,
@@ -74,7 +77,7 @@ export function ArtSlider(params) {
     state.sliders.forEach(function (sliderItem) {
       sliderItem.classList.add("--slide-view-" + state.slideView);
 
-      state.list = sliderItem.querySelector(".art-slider__list");
+      state.list = sliderItem.querySelector(state.selectorList);
       state.list.style.transition = state.speed + "ms";
       state.listWidth = state.list.getBoundingClientRect().width;
 
@@ -85,10 +88,10 @@ export function ArtSlider(params) {
         state.btnPrev = document.querySelector(state.btnPrev);
       }
 
-      state.slides.nodes = sliderItem.querySelectorAll(".art-slider__item");
+      state.slides.nodes = sliderItem.querySelectorAll(state.selectorWrapper);
       // state.slideWidth =
       //   state.slides.nodes[0].getBoundingClientRect().width + state.margin;
-      state.slides.nodes[0].classList.add("art-slider__item--active");
+      state.slides.nodes[0].classList.add(state.selectorItem+"--active");
       state.slides.active = state.slides.nodes[0];
       state.slides.activeIndex = 0;
       state.slides.count = state.slides.nodes.length;
@@ -194,7 +197,7 @@ export function ArtSlider(params) {
   }
 
   function moveSlideToStart() {
-    state.slides.nodes = state.list.querySelectorAll(".art-slider__item");
+    state.slides.nodes = state.list.querySelectorAll(state.selectorWrapper);
 
     state.slides.nodes.forEach(function (slide) {
       slide.style.transform = `translateX(${-state.curTranslateX}px)`;
@@ -205,7 +208,7 @@ export function ArtSlider(params) {
   }
 
   function moveSlideToEnd() {
-    state.slides.nodes = state.list.querySelectorAll(".art-slider__item");
+    state.slides.nodes = state.list.querySelectorAll(state.selectorWrapper);
 
     state.slides.nodes.forEach(function (slide) {
       slide.style.transform = `translateX(${-state.curTranslateX}px)`;
@@ -232,9 +235,9 @@ export function ArtSlider(params) {
   }
 
   function setActiveSlide() {
-    state.slides.active.classList.remove("art-slider__item--active");
+    state.slides.active.classList.remove(state.selectorItem+"--active");
     state.slides.active = state.slides.items[state.slides.activeIndex];
-    state.slides.active.classList.add("art-slider__item--active");
+    state.slides.active.classList.add(state.selectorItem+"--active");
   }
 
   function onSwipeStart(e) {
