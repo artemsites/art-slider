@@ -1,15 +1,55 @@
-<link rel="stylesheet" href="art-slider.min.css">
+<!DOCTYPE html>
+<html lang="ru">
 
-<div class="art-slider">
-  <div class="art-slider__wrapper">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+
+
+  <div class="art-slider">
     <div class="art-slider__list">
-
-      <div class="art-slider__item"></div>
-      <div class="art-slider__item"></div>
-      <div class="art-slider__item"></div>
-
+      <div class="art-slider__item">1</div>
+      <div class="art-slider__item">2</div>
+      <div class="art-slider__item">3</div>
     </div>
+    <button class="art-slider__prev">
+      <<< </button>
+        <button class="art-slider__next">
+          >>>
+        </button>
   </div>
-</div>
 
-<script src="art-slider.js"></script>
+  <script src="art-slider.js"></script>
+
+  <script>
+    new ArtSlider({
+      selectorSlider: '.art-slider',
+      selectorWrapper: '.art-slider__wrapper',
+      selectorList: '.art-slider__list',
+      selectorItem: '.art-slider__item',
+      loop: true,
+      slideView: 1,//default: 'auto'
+      stopOnHover: false,//default: true 
+      swipe: true,
+      speed: 500,
+
+      autoplay: 5 * 1000,//default: false
+      autoplayInfoPopup: true,//default: false
+      autoplayOffInfoPopupHTML: '<b>Слайдер на паузе...</b>',//default: ""
+      autoplayOnInfoPopupHTML: '<b>Слайдер включен...</b>',//default: ""
+      autoplayInfoPopupTimeout: 750,//default: 300
+
+      btnPrev: '.art-slider__prev',
+      btnNext: '.art-slider__next',
+    });
+  </script>
+
+</body>
+
+</html>

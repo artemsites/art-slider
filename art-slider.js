@@ -1,17 +1,17 @@
 /**
  * Слайдер ArtSlider
  * @author web.master-artem.ru
- * @version 1.3 - 02.04.2023 
+ * @version 1.3 - 02.04.2023
  * @source (cacher) https://snippets.cacher.io/snippet/876ca231e95e4f8239a6
  * @source (github) https://github.com/artemijeka/art-slider
  *
  * @param {Object} params
  * @returns {Object} state
  */
-export function ArtSlider(params) {
+function ArtSlider(params) {
   let state = {
     slideView: params.slideView || "auto",
-    
+
     autoplay: params.autoplay || false,
     autoplayInfoPopup: params.autoplayInfoPopup || false,
     autoplayOnInfoPopupHTML: params.autoplayOnInfoPopupHTML || "",
@@ -24,10 +24,10 @@ export function ArtSlider(params) {
     loop: params.loop || false,
     btnNext: params.btnNext || null,
     btnPrev: params.btnPrev || null,
-    slider: params.slider || ".art-slider",
-    selectorWrapper: params.selectorWrapper || '.art-slider__wrapper',
-    selectorList: params.selectorList || '.art-slider__list',
-    selectorItem: params.selectorItem || '.art-slider__item',
+    selectorSlider: params.selectorSlider || ".art-slider",
+    selectorWrapper: params.selectorWrapper || ".art-slider__wrapper",
+    selectorList: params.selectorList || ".art-slider__list",
+    selectorItem: params.selectorItem || ".art-slider__item",
     sliders: null,
     list: null,
     listWidth: null,
@@ -57,6 +57,8 @@ export function ArtSlider(params) {
   initSlider();
   // Клики по кнопкам навигации
   initNavBtns();
+  // Стили слайдера
+  createStyles();
 
   console.log(state);
 
@@ -66,12 +68,12 @@ export function ArtSlider(params) {
 
   function initSlider() {
     // Если передан селектор для поиска
-    if (state.slider && typeof state.slider === "string") {
-      state.sliders = document.querySelectorAll(state.slider);
+    if (state.selectorSlider && typeof state.selectorSlider === "string") {
+      state.sliders = document.querySelectorAll(state.selectorSlider);
     }
     // Если передан уже найденный элемент
-    else if (state.slider && typeof state.slider === "object") {
-      state.sliders = [state.slider];
+    else if (state.selectorSlider && typeof state.selectorSlider === "object") {
+      state.sliders = [state.selectorSlider];
     }
 
     state.sliders.forEach(function (sliderItem) {
@@ -88,10 +90,10 @@ export function ArtSlider(params) {
         state.btnPrev = document.querySelector(state.btnPrev);
       }
 
-      state.slides.nodes = sliderItem.querySelectorAll(state.selectorWrapper);
+      state.slides.nodes = sliderItem.querySelectorAll(state.selectorItem);
       // state.slideWidth =
       //   state.slides.nodes[0].getBoundingClientRect().width + state.margin;
-      state.slides.nodes[0].classList.add(state.selectorItem+"--active");
+      state.slides.nodes[0].classList.add(state.selectorItem + "--active");
       state.slides.active = state.slides.nodes[0];
       state.slides.activeIndex = 0;
       state.slides.count = state.slides.nodes.length;
@@ -197,7 +199,7 @@ export function ArtSlider(params) {
   }
 
   function moveSlideToStart() {
-    state.slides.nodes = state.list.querySelectorAll(state.selectorWrapper);
+    state.slides.nodes = state.list.querySelectorAll(state.selectorItem);
 
     state.slides.nodes.forEach(function (slide) {
       slide.style.transform = `translateX(${-state.curTranslateX}px)`;
@@ -208,7 +210,7 @@ export function ArtSlider(params) {
   }
 
   function moveSlideToEnd() {
-    state.slides.nodes = state.list.querySelectorAll(state.selectorWrapper);
+    state.slides.nodes = state.list.querySelectorAll(state.selectorItem);
 
     state.slides.nodes.forEach(function (slide) {
       slide.style.transform = `translateX(${-state.curTranslateX}px)`;
@@ -235,9 +237,9 @@ export function ArtSlider(params) {
   }
 
   function setActiveSlide() {
-    state.slides.active.classList.remove(state.selectorItem+"--active");
+    state.slides.active.classList.remove(state.selectorItem + "--active");
     state.slides.active = state.slides.items[state.slides.activeIndex];
-    state.slides.active.classList.add(state.selectorItem+"--active");
+    state.slides.active.classList.add(state.selectorItem + "--active");
   }
 
   function onSwipeStart(e) {
@@ -304,8 +306,60 @@ export function ArtSlider(params) {
 
   function createPopup() {
     let popup = document.createElement("div");
-    popup.className = "art-slider__info-popup";
+    let selectorSliderName = state.selectorSlider.replace(".", "");
+    popup.className = selectorSliderName + "__info-popup";
     return popup;
+  }
+
+  function createStyles() {
+    let strStyles = `
+      ${state.selectorSlider} {
+        position: relative;
+      }
+      ${state.selectorSlider}__info-popup {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -100%);
+        opacity: 0;
+      }
+      ${state.selectorSlider}.--slide-view-1 ${state.selectorItem} {
+        width: 100%;
+        flex-shrink: 0;
+      }
+      ${state.selectorSlider}__info-popup.--fade-in {
+        transition: 1000ms;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+      ${state.selectorSlider}__info-popup.--fade-out {
+        transition: 750ms;
+        transform: translate(-50%, 0%);
+        opacity: 0;
+      }
+      /* ${state.selectorWrapper} {
+        overflow-x: hidden;
+      } */
+      ${state.selectorList} {
+        /* не устанавливать ширину, а то ширина одного слайда вычислится неверно */
+        width: auto; /* или можно наверно fit-content */
+        display: flex;
+      }
+      ${state.selectorItem} {
+        display: flex;
+        height: auto;
+        /* height: 0; */
+        /* overflow-y: hidden; */
+      }
+      ${state.selectorItem}--active {
+        height: auto;
+      }
+    `;
+
+    let head = document.head || document.getElementsByTagName("head")[0];
+    let elStyle = document.createElement("style");
+    elStyle.appendChild(document.createTextNode(strStyles));
+    head.appendChild(elStyle);
   }
 
   return state;
