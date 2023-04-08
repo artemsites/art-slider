@@ -8,28 +8,33 @@
  * @param {Object} params
  * @returns {Object} state
  */
-function ArtSlider(params) {
+export function ArtSlider(params) {
+  // console.log("ArtSlider params");
+  // console.log(params);
+
   let state = {
-    slideView: params.slideView || "auto",
+    curSlideView: params.curSlideView || "auto",
 
     autoplay: params.autoplay || false,
-    autoplayInfoPopup: params.autoplayInfoPopup || false,
-    autoplayOnInfoPopupHTML: params.autoplayOnInfoPopupHTML || "",
-    autoplayOffInfoPopupHTML: params.autoplayOffInfoPopupHTML || "",
-    autoplayInfoPopupTimeout: params.autoplayInfoPopupTimeout || 300,
+
+    popupEnabled: params.popupEnabled || false,
+    popupPaused: null,
+    popupHTMLStartSlider: params.popupHTMLStartSlider || "",
+    popupHTMLStopSlider: params.popupHTMLStopSlider || "",
+    popupShowTimeout: params.popupShowTimeout || 500,
 
     stopOnHover: params.stopOnHover || true,
     speed: params.speed || 500,
     // TODO loop: false не сделано
-    loop: params.loop || false,
+    loop: params.loop || true,
     btnNext: params.btnNext || null,
     btnPrev: params.btnPrev || null,
-    selectorSlider: params.selectorSlider || ".art-slider",
-    selectorWrapper: params.selectorWrapper || ".art-slider__wrapper",
-    selectorList: params.selectorList || ".art-slider__list",
-    selectorItem: params.selectorItem || ".art-slider__item",
+    selSlider: params.selSlider || ".art-slider",
+    selSliderList: params.selSliderList || ".art-slider__list",
+    selSliderItem: params.selSliderItem || null,
+    classSliderItem: ["art-slider__item"],
     sliders: null,
-    list: null,
+    sliderList: null,
     listWidth: null,
     slides: {
       items: {},
@@ -44,23 +49,23 @@ function ArtSlider(params) {
     swipeX: null,
     isSwiping: false,
     next: function () {
-      next();
+      nextSlide();
       return this.slides.active;
     },
     prev: function () {
-      prev();
+      prevSlide();
       return this.slides.active;
     },
     autoplayInterval: null,
   };
+  // console.log(state);
+
+  // Стили слайдера
+  createStyles();
 
   initSlider();
   // Клики по кнопкам навигации
   initNavBtns();
-  // Стили слайдера
-  createStyles();
-
-  console.log(state);
 
   ////////////////////////////////////////////////////////////////////
   /* Далее идут функции которые взаимодействуют вызывая друг друга: */
@@ -68,49 +73,64 @@ function ArtSlider(params) {
 
   function initSlider() {
     // Если передан селектор для поиска
-    if (state.selectorSlider && typeof state.selectorSlider === "string") {
-      state.sliders = document.querySelectorAll(state.selectorSlider);
+    if (state.selSlider && typeof state.selSlider === "string") {
+      state.sliders = document.querySelectorAll(state.selSlider);
     }
     // Если передан уже найденный элемент
-    else if (state.selectorSlider && typeof state.selectorSlider === "object") {
-      state.sliders = [state.selectorSlider];
+    else if (state.selSlider && typeof state.selSlider === "object") {
+      state.sliders = [state.selSlider];
     }
 
-    state.sliders.forEach(function (sliderItem) {
-      sliderItem.classList.add("--slide-view-" + state.slideView);
+    state.sliders.forEach(function (slider) {
+      // console.log("slider");
+      // console.log(slider);
 
-      state.list = sliderItem.querySelector(state.selectorList);
-      state.list.style.transition = state.speed + "ms";
-      state.listWidth = state.list.getBoundingClientRect().width;
+      slider.classList.add("--slide-view-" + state.curSlideView);
+
+      state.sliderList = slider.querySelector(state.selSliderList);
+
+      state.sliderList.style.transition = state.speed + "ms";
+      state.listWidth = state.sliderList.getBoundingClientRect().width;
 
       if (state.btnNext && typeof state.btnNext === "string") {
-        state.btnNext = document.querySelector(state.btnNext);
+        state.btnNext = slider.querySelector(state.btnNext);
       }
       if (state.btnPrev && typeof state.btnPrev === "string") {
-        state.btnPrev = document.querySelector(state.btnPrev);
+        state.btnPrev = slider.querySelector(state.btnPrev);
       }
 
-      state.slides.nodes = sliderItem.querySelectorAll(state.selectorItem);
-      // state.slideWidth =
-      //   state.slides.nodes[0].getBoundingClientRect().width + state.margin;
-      state.slides.nodes[0].classList.add(state.selectorItem + "--active");
+      state.slides.nodes = state.sliderList.children;
+      // console.log('state.slides.nodes')
+      // console.log(state.slides.nodes)
+      state.slides.nodes[0].classList.add("--active");
       state.slides.active = state.slides.nodes[0];
       state.slides.activeIndex = 0;
       state.slides.count = state.slides.nodes.length;
 
+      // Проставляем класс art-slider__item детям если явно не проставлены эти классы
+      if (!state.selSliderItem) {
+        state.selSliderItem = "." + state.classSliderItem;
+      } else {
+        state.classSliderItem = state.selSliderItem.split(".");
+      }
+
+      for (let className of state.classSliderItem) {
+        if (className) {
+          for (let slide of state.slides.nodes) {
+            slide.classList.add(className);
+          }
+        }
+      }
+
       if (state.autoplay) {
-        autoplayOn(sliderItem);
+        autoplayOn(slider);
 
         if (state.stopOnHover) {
-          // console.log('sliderItem')
-          // console.log(sliderItem)
-          sliderItem.addEventListener("mouseenter", function () {
-            autoplayOff(sliderItem);
-            // console.log("autoplayOff");
+          slider.addEventListener("mouseenter", function () {
+            autoplayOff(slider);
           });
-          sliderItem.addEventListener("mouseleave", function () {
-            autoplayOn(sliderItem);
-            // console.log("autoplayOn");
+          slider.addEventListener("mouseleave", function () {
+            autoplayOn(slider);
           });
         }
       }
@@ -118,25 +138,31 @@ function ArtSlider(params) {
       // !Важно ширина обёртки list должна быть равна сумме ширин слайдов
       state.slideWidth = state.listWidth / state.slides.count;
 
-      // Инициация свайпов
-      state.slides.nodes.forEach(function (slide, i) {
-        slide.dataset.artSlideI = i;
-        state.slides.items[i] = slide;
+      // Инициализация старта свайпа на каждом слайде
+      for (let i in state.slides.nodes) {
+        let slide = state.slides.nodes[i];
 
-        // !Помогает избавиться от багов с началом обработки драга вместо требуемых touchstart и mousedown
-        slide.addEventListener("dragstart", function (e) {
-          e.preventDefault;
-        });
+        // Отсеиваем не элементы DOM из списка
+        if (typeof slide === "object") {
+          slide.dataset.artSlideI = i;
+          state.slides.items[i] = slide;
 
-        ["touchstart", "mousedown"].forEach(function (eventName) {
-          slide.addEventListener(eventName, (e) => {
-            onSwipeStart(e);
+          // !Помогает избавиться от багов с началом обработки драга вместо требуемых touchstart и mousedown
+          slide.addEventListener("dragstart", function (e) {
+            e.preventDefault;
           });
-        });
-      });
 
+          ["touchstart", "mousedown"].forEach(function (eventName) {
+            slide.addEventListener(eventName, (e) => {
+              onSwipeStart(e);
+            });
+          });
+        }
+      }
+      // Инициализация окончания свайпа где угодно
       ["touchend", "mouseup"].forEach(function (eventName) {
         document.addEventListener(eventName, (e) => {
+          console.log(eventName);
           onSwipeEnd(e);
         });
       });
@@ -146,17 +172,17 @@ function ArtSlider(params) {
   function initNavBtns() {
     if (state.btnNext) {
       state.btnNext.addEventListener("click", function () {
-        next();
+        nextSlide();
       });
     }
     if (state.btnPrev) {
       state.btnPrev.addEventListener("click", function () {
-        prev();
+        prevSlide();
       });
     }
   }
 
-  function next() {
+  function nextSlide() {
     translateNext();
     setActiveSlideNext();
     if (state.loop) {
@@ -165,7 +191,7 @@ function ArtSlider(params) {
     createEventSlideChange();
   }
 
-  function prev() {
+  function prevSlide() {
     translatePrev();
     setActiveSlidePrev();
     if (state.loop) {
@@ -195,29 +221,29 @@ function ArtSlider(params) {
   }
 
   function setTransformTranslateX() {
-    state.list.style.transform = `translateX(${state.curTranslateX}px)`;
+    state.sliderList.style.transform = `translateX(${state.curTranslateX}px)`;
   }
 
   function moveSlideToStart() {
-    state.slides.nodes = state.list.querySelectorAll(state.selectorItem);
+    state.slides.nodes = state.sliderList.querySelectorAll(state.selSliderItem);
 
     state.slides.nodes.forEach(function (slide) {
       slide.style.transform = `translateX(${-state.curTranslateX}px)`;
     });
 
     let curSlideLast = state.slides.nodes[state.slides.nodes.length - 1];
-    state.list.prepend(curSlideLast);
+    state.sliderList.prepend(curSlideLast);
   }
 
   function moveSlideToEnd() {
-    state.slides.nodes = state.list.querySelectorAll(state.selectorItem);
+    state.slides.nodes = state.sliderList.querySelectorAll(state.selSliderItem);
 
     state.slides.nodes.forEach(function (slide) {
       slide.style.transform = `translateX(${-state.curTranslateX}px)`;
     });
 
     let curSlideFirst = state.slides.nodes[0];
-    state.list.append(curSlideFirst);
+    state.sliderList.append(curSlideFirst);
   }
 
   function setActiveSlideNext() {
@@ -237,12 +263,13 @@ function ArtSlider(params) {
   }
 
   function setActiveSlide() {
-    state.slides.active.classList.remove(state.selectorItem + "--active");
+    state.slides.active.classList.remove("--active");
     state.slides.active = state.slides.items[state.slides.activeIndex];
-    state.slides.active.classList.add(state.selectorItem + "--active");
+    state.slides.active.classList.add("--active");
   }
 
   function onSwipeStart(e) {
+    if (state.popupEnabled) state.popupPaused = true;
     console.log("onSwipeStart");
     // TODO autoplay('stop')
     // #autoplay('stop');
@@ -260,99 +287,116 @@ function ArtSlider(params) {
     const event = e.type.search("touch") === 0 ? e.changedTouches[0] : e;
     const diffPos = state.swipeX - event.clientX;
     if (diffPos > 50) {
-      next();
+      nextSlide();
     } else if (diffPos < -50) {
-      prev();
+      prevSlide();
     }
     state.isSwiping = false;
     if (state.loop) {
       // TODO autoplay:
       // autoplay();
     }
+
+    if (state.popupEnabled) state.popupPaused = false;
   }
 
   function autoplayOn(sliderItem) {
     state.autoplayInterval = setInterval(function () {
-      next();
+      nextSlide();
     }, state.autoplay);
-    if (state.autoplayInfoPopup) {
-      autoplayInfoPopup(sliderItem, state.autoplayOnInfoPopupHTML);
+    if (state.popupEnabled) {
+      enablePopup(sliderItem, state.popupHTMLStartSlider);
     }
   }
 
   function autoplayOff(sliderItem) {
     clearInterval(state.autoplayInterval);
-    if (state.autoplayInfoPopup) {
-      autoplayInfoPopup(sliderItem, state.autoplayOffInfoPopupHTML);
+    if (state.popupEnabled) {
+      enablePopup(sliderItem, state.popupHTMLStopSlider);
     }
   }
 
-  function autoplayInfoPopup(sliderItem, message) {
-    let popup = createPopup();
-    popup.innerHTML = message;
-    sliderItem.append(popup);
-    setTimeout(function () {
-      popup.classList.add("--fade-in");
-    }, 1);
-
-    setTimeout(function () {
-      popup.classList.remove("--fade-in");
-      popup.classList.add("--fade-out");
+  function enablePopup(sliderItem, message) {
+    if (!state.popupPaused) {
+      let popup = createPopup();
+      popup.innerHTML = message;
+      sliderItem.append(popup);
       setTimeout(function () {
-        popup.remove();
-      }, 1000);
-    }, state.autoplayInfoPopupTimeout);
+        popup.classList.add("--fade-in");
+      }, 1);
+
+      setTimeout(function () {
+        popup.classList.remove("--fade-in");
+        popup.classList.add("--fade-out");
+        setTimeout(function () {
+          popup.remove();
+        }, 1000);
+      }, state.popupShowTimeout);
+    }
   }
 
   function createPopup() {
     let popup = document.createElement("div");
-    let selectorSliderName = state.selectorSlider.replace(".", "");
-    popup.className = selectorSliderName + "__info-popup";
+    let selSliderName = state.selSlider.replace(".", "");
+    popup.className = "art-slider__info-popup";
     return popup;
   }
 
   function createStyles() {
     let strStyles = `
-      ${state.selectorSlider} {
+      ${state.selSlider} {
         position: relative;
       }
-      ${state.selectorSlider}__info-popup {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -100%);
-        opacity: 0;
-      }
-      ${state.selectorSlider}.--slide-view-1 ${state.selectorItem} {
+      ${state.selSlider}.--slide-view-1 ${state.selSliderItem} {
         width: 100%;
         flex-shrink: 0;
       }
-      ${state.selectorSlider}__info-popup.--fade-in {
+      
+      ${state.selSliderList} {
+        /* не устанавливать ширину, а то ширина одного слайда вычислится неверно */
+        /* или можно наверно fit-content */
+        display: flex;
+
+        position: relative;
+      }
+      
+      ${state.selSliderItem} {
+        display: flex; 
+      }
+      ${state.selSliderItem} img {
+        pointer-events: none;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        cursor: pointer;
+      }
+      ${state.selSliderItem}.--active {
+      }
+
+      .art-slider__info-popup {
+        position: absolute;
+        left: 50%;
+        top: 0%;
+        padding: 5px 8px;
+        background-color: white;
+        transform: translate(-50%, 0);
+        opacity: 0;
+
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+      .art-slider__info-popup.--fade-in {
         transition: 1000ms;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, 50%);
         opacity: 1;
       }
-      ${state.selectorSlider}__info-popup.--fade-out {
+      .art-slider__info-popup.--fade-out {
         transition: 750ms;
         transform: translate(-50%, 0%);
         opacity: 0;
-      }
-      /* ${state.selectorWrapper} {
-        overflow-x: hidden;
-      } */
-      ${state.selectorList} {
-        /* не устанавливать ширину, а то ширина одного слайда вычислится неверно */
-        width: auto; /* или можно наверно fit-content */
-        display: flex;
-      }
-      ${state.selectorItem} {
-        display: flex;
-        height: auto;
-        /* height: 0; */
-        /* overflow-y: hidden; */
-      }
-      ${state.selectorItem}--active {
-        height: auto;
       }
     `;
 
