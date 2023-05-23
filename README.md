@@ -7,40 +7,56 @@ Source (github) https://github.com/artemijeka/art-slider
 
 
 
-##### Пример (версия 1.2):
+##### Пример:
 ```
-  new ArtSlider({
-    slider: slider.value,//default: '.art-slider'
-    selectorWrapper: '.art-slider__wrapper',
-    selectorList: '.art-slider__list',
-    selectorItem: '.art-slider__item',
-    loop: true,
-    slideView: 1,//default: 'auto'
-    stopOnHover: false,//default: true 
-    swipe: true,
-    speed: 500,
-
-    autoplay: 5 * 1000,//default: false
-    autoplayInfoPopup: true,//default: false
-    autoplayOffInfoPopupHTML: '<b>Слайдер на паузе...</b>',//default: ""
-    autoplayOnInfoPopupHTML: '<b>Слайдер включен...</b>',//default: ""
-    autoplayInfoPopupTimeout: 750,//default: 300
-
-    // btnPrev: '.block-text__prev',
-    // btnNext: '.block-text__next',
-  });
-```
-
-```
-<div class="art-slider">
-  <div class="art-slider__wrapper">
-    <div class="art-slider__list">
-
-      <div class="art-slider__item"></div>
-      <div class="art-slider__item"></div>
-      <div class="art-slider__item"></div>
-
+  <div class="info__slider --wp-raw">
+    <!-- Во Vue например вывод группы картинок через WP Rest API -->
+    <div class="info__slider-list --wp-raw" v-html="content">
+      <!-- Тут внтури примерно такая структура приходит с WP по Rest API -->
+      <figure><img></figure>
+      <figure><img></figure>
+      <figure><img></figure>
     </div>
+
+    <button class="art-slider__prev">prev</button>
+    <button class="art-slider__next">next</button>
   </div>
-</div>
+
+  <script src="art-slider.js"></script>
+
+  <script>
+    new ArtSlider({
+      // Default .art-slider
+      selSlider: `#info-${props.id} .info__slider.--wp-raw`,
+
+      // Default .art-slider__list
+      selSliderList: '.info__slider-list.--wp-raw',
+
+      // Default null и проставляется на все слайды автоматом .art-slider__item
+      // Если самому указать то этот селектор проставится на слайды 
+      selSliderItem: '.info__slider-item.--wp-raw',
+
+      // Default true
+      loop: false,
+
+      // Default: 'auto' 
+      curSlideView: 1,
+
+      // Default: true 
+      stopOnHover: false,
+
+      swipe: true,
+      speed: 500,
+
+      autoplay: 3 * 1000,//default: false
+
+      popupEnabled: true,//default: false
+      popupHTMLStopSlider: '<b>Слайдер на паузе</b>',//default: ""
+      popupHTMLStartSlider: '<b>Слайдер включен</b>',//default: ""
+      popupShowTimeout: 750,//default: 300
+
+      // btnPrev: '.art-slider__prev',
+      // btnNext: '.art-slider__next',
+    });
+  </script>
 ```
